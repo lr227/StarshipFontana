@@ -17,7 +17,7 @@ You will have to have the SDL development libraries installed on
 your system.  The easiest way to compile is to use a command-line
 
 ```bash
-$ g++ -c src/*.cpp
+$ g++ -c -std=c++11 src/*.cpp
 $ g++ -o starship *.o -lSDL2 -lSDL2_image
 ```
 
@@ -28,9 +28,6 @@ top-level directory.  To execute this file do the following
  
 from the top-level directory.  The game will expect to find the
 `assets` directory under its current working directory.
-
-## Issues ##
-I think the SDL port has introduced some bounding box collision issues.
 
 ## Credits ##
 The sprites in this game come directly from 
