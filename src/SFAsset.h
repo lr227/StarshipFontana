@@ -34,8 +34,14 @@ public:
   virtual SFAssetId GetId();
   virtual void      OnRender();
   virtual void      GoEast();
+  virtual void      CharacterGoEast();
   virtual void      GoWest();
+  virtual void      CharacterGoWest();
   virtual void      GoNorth();
+  virtual void      CharacterGoNorth();
+  virtual void      CoinGoSouth();
+  virtual void      GoSouth();
+  virtual void      CharacterGoSouth();
   virtual void      SetNotAlive();
   virtual bool      IsAlive();
   virtual void      HandleCollision();

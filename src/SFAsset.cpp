@@ -93,29 +93,76 @@ void SFAsset::OnRender() {
   SDL_RenderCopy(sf_window->getRenderer(), sprite, NULL, &rect);
 }
 
+
+//moving all assets but the player
 void SFAsset::GoWest() {
   Vector2 c = *(bbox->centre) + Vector2(-5.0f, 0.0f);
-  if(!(c.getX() < 0)) {
+    bbox->centre.reset();
+    bbox->centre = make_shared<Vector2>(c);
+}
+//moving the player
+void SFAsset::CharacterGoWest() {
+  Vector2 c = *(bbox->centre) + Vector2(-10.0f, 0.0f);
+  if(!(c.getX() < 30)) {
     bbox->centre.reset();
     bbox->centre = make_shared<Vector2>(c);
   }
 }
 
+//moving all assets but the player
 void SFAsset::GoEast() {
   int w, h;
   SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
 
   Vector2 c = *(bbox->centre) + Vector2(5.0f, 0.0f);
-  if(!(c.getX() > w)) {
+    bbox->centre.reset();
+    bbox->centre = make_shared<Vector2>(c);
+}
+//moving the player
+void SFAsset::CharacterGoEast() { 
+  int w, h;
+  SDL_GetRendererOutputSize(sf_window->getRenderer(), &w, &h);
+
+  Vector2 c = *(bbox->centre) + Vector2(10.0f, 0.0f);
+  if(!(c.getX() > 610)) {
     bbox->centre.reset();
     bbox->centre = make_shared<Vector2>(c);
   }
 }
 
+//moving all assets but the player
 void SFAsset::GoNorth() {
-  Vector2 c = *(bbox->centre) + Vector2(0.0f, 1.0f);
+  Vector2 c = *(bbox->centre) + Vector2(0.0f, 5.0f);
   bbox->centre.reset();
   bbox->centre = make_shared<Vector2>(c);
+}
+//moving the player
+void SFAsset::CharacterGoNorth() {
+  Vector2 c = *(bbox->centre) + Vector2(0.0f, 10.0f);
+  if(!(c.getY() > 505)) {
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+  }
+}
+//moving the coin
+void SFAsset::CoinGoSouth() {
+  Vector2 c = *(bbox->centre) + Vector2(0.0f, -1.0f);
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+}
+//moving all assets but the player
+void SFAsset::GoSouth() {
+  Vector2 c = *(bbox->centre) + Vector2(0.0f, -4.0f);
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+}
+//moving the player
+void SFAsset::CharacterGoSouth() {
+  Vector2 c = *(bbox->centre) + Vector2(0.0f, -10.0f);
+  if(!(c.getY() < 66)) {
+  bbox->centre.reset();
+  bbox->centre = make_shared<Vector2>(c);
+  }
 }
 
 bool SFAsset::CollidesWith(shared_ptr<SFAsset> other) {
@@ -135,7 +182,7 @@ bool SFAsset::IsAlive() {
 }
 
 void SFAsset::HandleCollision() {
-  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type) {
+  if(SFASSET_PROJECTILE == type || SFASSET_ALIEN == type || SFASSET_COIN == type)  {
     SetNotAlive();
   }
 }

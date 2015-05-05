@@ -6,22 +6,26 @@ SFApp::SFApp(std::shared_ptr<SFWindow> window) : fire(0), is_running(true), sf_w
 
   app_box = make_shared<SFBoundingBox>(Vector2(canvas_w, canvas_h), canvas_w, canvas_h);
   player  = make_shared<SFAsset>(SFASSET_PLAYER, sf_window);
-  auto player_pos = Point2(canvas_w, 88.0f);
+  auto player_pos = Point2((canvas_w/2), 88.0f);
   player->SetPosition(player_pos);
 
-  const int number_of_aliens = 10;
+  const int number_of_aliens = 75;
   for(int i=0; i<number_of_aliens; i++) {
     // place an alien at width/number_of_aliens * i
     auto alien = make_shared<SFAsset>(SFASSET_ALIEN, sf_window);
-    auto pos   = Point2((canvas_w/number_of_aliens) * i, 200.0f);
+    auto pos   = Point2((canvas_w/number_of_aliens) * i, rand() % 10000 + 550);
     alien->SetPosition(pos);
     aliens.push_back(alien);
   }
-
-  auto coin = make_shared<SFAsset>(SFASSET_COIN, sf_window);
-  auto pos  = Point2((canvas_w/4), 100);
-  coin->SetPosition(pos);
-  coins.push_back(coin);
+  
+  //allowing the idea of coin/token collection
+  const int number_of_coins = 30;
+  for(int k=0; k<number_of_coins; k++) {
+    auto coin = make_shared<SFAsset>(SFASSET_COIN, sf_window);
+    auto pos  = Point2((canvas_w/number_of_coins) * k, rand() % 10000 + 550);
+    coin->SetPosition(pos);
+    coins.push_back(coin);
+  }
 }
 
 SFApp::~SFApp() {
@@ -41,11 +45,17 @@ void SFApp::OnEvent(SFEvent& event) {
     OnUpdateWorld();
     OnRender();
     break;
+  case SFEVENT_PLAYER_UP:
+    player->CharacterGoNorth();
+    break;
+  case SFEVENT_PLAYER_DOWN:
+    player->CharacterGoSouth();
+    break;
   case SFEVENT_PLAYER_LEFT:
-    player->GoWest();
+    player->CharacterGoWest();
     break;
   case SFEVENT_PLAYER_RIGHT:
-    player->GoEast();
+    player->CharacterGoEast();
     break;
   case SFEVENT_FIRE:
     fire ++;
@@ -70,35 +80,51 @@ void SFApp::OnUpdateWorld() {
   for(auto p: projectiles) {
     p->GoNorth();
   }
-
+  // Update coin position
   for(auto c: coins) {
-    c->GoNorth();
+    c->CoinGoSouth();
   }
 
   // Update enemy positions
   for(auto a : aliens) {
-    // do something here
+    a->GoSouth();
   }
 
   // Detect collisions
   for(auto p : projectiles) {
     for(auto a : aliens) {
-      if(p->CollidesWith(a)) {
+      auto projectileposition=p->GetPosition();
+      if(p->CollidesWith(a) && projectileposition.getY()<500) {
         p->HandleCollision();
         a->HandleCollision();
       }
     }
   }
-
-  // remove dead aliens (the long way)
-  list<shared_ptr<SFAsset>> tmp;
-  for(auto a : aliens) {
-    if(a->IsAlive()) {
-      tmp.push_back(a);
+  for(auto p : projectiles) {
+    for(auto c : coins) {
+      int coincount = 0;
+      if(p->CollidesWith(c)) {
+        c->HandleCollision();
+        p->HandleCollision();
+        coincount++;
+	cout<<coincount;
+      }
     }
   }
-  aliens.clear();
-  aliens = list<shared_ptr<SFAsset>>(tmp);
+
+  // remove dead aliens (the long way)
+  list<shared_ptr<SFAsset> > aliens;
+  for(auto a : aliens) {
+    if(a->IsAlive()) {
+      aliens.push_back(a);
+    }
+  }
+  list<shared_ptr<SFAsset> > coins;
+  for(auto c : coins) {
+    if(c->IsAlive()) {
+      coins.push_back(c);
+    }
+  }
 }
 
 void SFApp::OnRender() {
@@ -116,7 +142,7 @@ void SFApp::OnRender() {
   }
 
   for(auto c: coins) {
-    c->OnRender();
+    if(c->IsAlive()) {c->OnRender();}
   }
 
   // Switch the off-screen buffer to be on-screen
